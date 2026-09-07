@@ -4,11 +4,11 @@ import { PRODUCTS } from "@/data/products";
 import { Header, Footer, Stars, useCart } from "@/components/shop";
 import { ratingFor, reviewsFor, discountFor } from "@/lib/catalog";
 
-type Search = { q?: string };
+type Search = { q: string };
 
 export const Route = createFileRoute("/suche")({
   validateSearch: (search: Record<string, unknown>): Search => ({
-    q: typeof search['q'] === "string" ? search['q'] : undefined,
+    q: typeof search['q'] === "string" ? search['q'] : "Kopfhörer",
   }),
   head: () => ({
     meta: [
