@@ -5,7 +5,7 @@ import { Header, Footer, Stars, useCart } from "@/components/shop";
 import { ShopBot } from "@/components/shopbot";
 import { ratingFor, reviewsFor, discountFor } from "@/lib/catalog";
 
-type Search = { q: string; cond: "a" | "b" };
+type Search = { q?: string; cond?: "a" | "b" };
 
 export const Route = createFileRoute("/suche")({
   validateSearch: (search: Record<string, unknown>): Search => ({
@@ -41,6 +41,7 @@ const SORTS = [
 
 function Results() {
   const { q, cond } = Route.useSearch();
+  const condition = cond === "b" ? "b" : "a";
   const navigate = useNavigate();
   const { add } = useCart();
   const [query, setQuery] = useState(q ?? "");
@@ -63,7 +64,7 @@ function Results() {
           className="flex gap-2"
           onSubmit={(e) => {
             e.preventDefault();
-            navigate({ to: "/suche", search: { q: query.trim() || "Kopfhörer", cond } });
+            navigate({ to: "/suche", search: { q: query.trim() || "Kopfhörer", cond: condition } });
           }}
         >
           <input
@@ -88,7 +89,7 @@ function Results() {
           &gt; Audio &gt; <span className="text-foreground">Kopfhörer</span>
         </nav>
 
-        {cond === "b" ? (
+        {condition === "b" ? (
           <div className="mt-4">
             <ShopBot />
           </div>

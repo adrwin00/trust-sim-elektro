@@ -4,7 +4,7 @@ import { Header, Footer } from "@/components/shop";
 
 export const Route = createFileRoute("/")({
   validateSearch: (search: Record<string, unknown>) => ({
-    cond: (search['cond'] === "b" ? "b" : "a") as "a" | "b",
+    cond: (search['cond'] === "b" ? "b" : undefined) as "a" | "b" | undefined,
   }),
   head: () => ({
     meta: [
@@ -51,10 +51,11 @@ const STRIPS = [
 function Home() {
   const navigate = useNavigate();
   const { cond } = Route.useSearch();
+  const condition = cond === "b" ? "b" : "a";
   const [query, setQuery] = useState("");
 
   const go = (q: string) =>
-    navigate({ to: "/suche", search: { q: q.trim() || "Kopfhörer", cond } });
+    navigate({ to: "/suche", search: { q: q.trim() || "Kopfhörer", cond: condition } });
 
   return (
     <div className="min-h-screen bg-background font-sans text-foreground">
@@ -190,7 +191,7 @@ function Home() {
         </section>
       </main>
 
-      {cond === "b" && (
+      {condition === "b" && (
         <button
           onClick={() => go("Kopfhörer")}
           className="fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full bg-brand px-5 py-3 text-sm font-semibold text-brand-foreground shadow-xl transition-transform hover:scale-105"
