@@ -1,11 +1,8 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { Header, Footer } from "@/components/shop";
 
 export const Route = createFileRoute("/")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    cond: (search['cond'] === "b" ? "b" : undefined) as "a" | "b" | undefined,
-  }),
   head: () => ({
     meta: [
       { title: "ElektroPunkt — Elektronik, Technik & Angebote online" },
@@ -50,8 +47,8 @@ const STRIPS = [
 
 function Home() {
   const navigate = useNavigate();
-  const { cond } = Route.useSearch();
-  const condition = cond === "b" ? "b" : "a";
+  const rawSearch = useRouterState({ select: (st) => st.location.search as Record<string, unknown> });
+  const condition = rawSearch['cond'] === "b" ? "b" : "a";
   const [query, setQuery] = useState("");
 
   const go = (q: string) =>
