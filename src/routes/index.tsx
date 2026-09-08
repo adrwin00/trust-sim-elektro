@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { Header, Footer } from "@/components/shop";
 
@@ -47,10 +47,12 @@ const STRIPS = [
 
 function Home() {
   const navigate = useNavigate();
+  const rawSearch = useRouterState({ select: (st) => st.location.search as Record<string, unknown> });
+  const condition = rawSearch['cond'] === "b" ? "b" : "a";
   const [query, setQuery] = useState("");
 
   const go = (q: string) =>
-    navigate({ to: "/suche", search: { q: q.trim() || "Kopfhörer" } });
+    navigate({ to: "/suche", search: { q: q.trim() || "Kopfhörer", cond: condition } });
 
   return (
     <div className="min-h-screen bg-background font-sans text-foreground">
@@ -185,6 +187,15 @@ function Home() {
           </div>
         </section>
       </main>
+
+      {condition === "b" && (
+        <button
+          onClick={() => go("Kopfhörer")}
+          className="fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full bg-brand px-5 py-3 text-sm font-semibold text-brand-foreground shadow-xl transition-transform hover:scale-105"
+        >
+          <span className="text-lg">🤖</span> Mit ShopBot chatten
+        </button>
+      )}
 
       <Footer />
     </div>
