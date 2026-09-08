@@ -2,13 +2,15 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { PRODUCTS } from "@/data/products";
 import { Header, Footer, Stars, useCart } from "@/components/shop";
+import { ShopBot } from "@/components/shopbot";
 import { ratingFor, reviewsFor, discountFor } from "@/lib/catalog";
 
-type Search = { q: string };
+type Search = { q: string; cond: "a" | "b" };
 
 export const Route = createFileRoute("/suche")({
   validateSearch: (search: Record<string, unknown>): Search => ({
     q: typeof search['q'] === "string" ? search['q'] : "Kopfhörer",
+    cond: search['cond'] === "b" ? "b" : "a",
   }),
   head: () => ({
     meta: [
@@ -38,7 +40,7 @@ const SORTS = [
 ];
 
 function Results() {
-  const { q } = Route.useSearch();
+  const { q, cond } = Route.useSearch();
   const navigate = useNavigate();
   const { add } = useCart();
   const [query, setQuery] = useState(q ?? "");
@@ -61,7 +63,7 @@ function Results() {
           className="flex gap-2"
           onSubmit={(e) => {
             e.preventDefault();
-            navigate({ to: "/suche", search: { q: query.trim() || "Kopfhörer" } });
+            navigate({ to: "/suche", search: { q: query.trim() || "Kopfhörer", cond } });
           }}
         >
           <input
@@ -86,15 +88,21 @@ function Results() {
           &gt; Audio &gt; <span className="text-foreground">Kopfhörer</span>
         </nav>
 
-        <div className="mt-4 rounded-lg border border-brand/30 bg-brand/5 p-4">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-brand">
-            Empfohlen für Sie
-          </span>
-          <p className="mt-1 text-sm">
-            Basierend auf Ihrer Suche empfehlen wir: RunFit Sport Pro — 69€, wasserfest &amp;
-            kabellos, optimal für Lauftraining.
-          </p>
-        </div>
+        {cond === "b" ? (
+          <div className="mt-4">
+            <ShopBot />
+          </div>
+        ) : (
+          <div className="mt-4 rounded-lg border border-brand/30 bg-brand/5 p-4">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-brand">
+              Empfohlen für Sie
+            </span>
+            <p className="mt-1 text-sm">
+              Basierend auf Ihrer Suche empfehlen wir: RunFit Sport Pro — 69€, wasserfest &amp;
+              kabellos, optimal für Lauftraining.
+            </p>
+          </div>
+        )}
 
         <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
           <div>

@@ -3,6 +3,9 @@ import { useState } from "react";
 import { Header, Footer } from "@/components/shop";
 
 export const Route = createFileRoute("/")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    cond: (search['cond'] === "b" ? "b" : "a") as "a" | "b",
+  }),
   head: () => ({
     meta: [
       { title: "ElektroPunkt — Elektronik, Technik & Angebote online" },
@@ -47,10 +50,11 @@ const STRIPS = [
 
 function Home() {
   const navigate = useNavigate();
+  const { cond } = Route.useSearch();
   const [query, setQuery] = useState("");
 
   const go = (q: string) =>
-    navigate({ to: "/suche", search: { q: q.trim() || "Kopfhörer" } });
+    navigate({ to: "/suche", search: { q: q.trim() || "Kopfhörer", cond } });
 
   return (
     <div className="min-h-screen bg-background font-sans text-foreground">
@@ -185,6 +189,15 @@ function Home() {
           </div>
         </section>
       </main>
+
+      {cond === "b" && (
+        <button
+          onClick={() => go("Kopfhörer")}
+          className="fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full bg-brand px-5 py-3 text-sm font-semibold text-brand-foreground shadow-xl transition-transform hover:scale-105"
+        >
+          <span className="text-lg">🤖</span> Mit ShopBot chatten
+        </button>
+      )}
 
       <Footer />
     </div>
