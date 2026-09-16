@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { Header, Footer } from "@/components/shop";
 
@@ -23,13 +23,13 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-const CATEGORIES = [
+const CATEGORIES: { label: string; icon: string; slug?: string }[] = [
   { label: "Kopfhörer", icon: "🎧" },
-  { label: "Lautsprecher", icon: "🔊" },
-  { label: "Smartwatches", icon: "⌚" },
-  { label: "Laptops", icon: "💻" },
-  { label: "Smart Home", icon: "🏠" },
-  { label: "Gaming", icon: "🎮" },
+  { label: "Lautsprecher", icon: "🔊", slug: "lautsprecher" },
+  { label: "Smartwatches", icon: "⌚", slug: "smartwatches" },
+  { label: "Laptops", icon: "💻", slug: "laptops" },
+  { label: "Smart Home", icon: "🏠", slug: "smart-home" },
+  { label: "Gaming", icon: "🎮", slug: "gaming" },
 ];
 
 const DEALS = [
@@ -111,16 +111,28 @@ function Home() {
         {/* Categories */}
         <section className="mx-auto max-w-6xl px-4">
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
-            {CATEGORIES.map((c) => (
-              <button
-                key={c.label}
-                onClick={() => go(c.label)}
-                className="flex flex-col items-center gap-2 rounded-lg border border-border bg-card p-4 text-center transition-shadow hover:shadow-md"
-              >
-                <span className="text-2xl">{c.icon}</span>
-                <span className="text-xs font-semibold">{c.label}</span>
-              </button>
-            ))}
+            {CATEGORIES.map((c) =>
+              c.slug ? (
+                <Link
+                  key={c.label}
+                  to="/kategorie/$slug"
+                  params={{ slug: c.slug }}
+                  className="flex flex-col items-center gap-2 rounded-lg border border-border bg-card p-4 text-center transition-shadow hover:shadow-md"
+                >
+                  <span className="text-2xl">{c.icon}</span>
+                  <span className="text-xs font-semibold">{c.label}</span>
+                </Link>
+              ) : (
+                <button
+                  key={c.label}
+                  onClick={() => go(c.label)}
+                  className="flex flex-col items-center gap-2 rounded-lg border border-border bg-card p-4 text-center transition-shadow hover:shadow-md"
+                >
+                  <span className="text-2xl">{c.icon}</span>
+                  <span className="text-xs font-semibold">{c.label}</span>
+                </button>
+              ),
+            )}
           </div>
         </section>
 

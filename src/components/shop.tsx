@@ -1,7 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { createContext, useContext, useState, type ReactNode } from "react";
 
-const NAV = ["Handy & Tablet", "Audio", "Computer", "Haushalt", "Angebote"];
+const NAV = [
+  { label: "Handy & Tablet", slug: "handy-tablet" },
+  { label: "Audio", slug: "audio" },
+  { label: "Computer", slug: "computer" },
+  { label: "Haushalt", slug: "haushalt" },
+  { label: "Angebote", slug: "angebote" },
+];
 
 type CartCtx = { count: number; add: () => void };
 const Cart = createContext<CartCtx>({ count: 0, add: () => {} });
@@ -43,9 +49,14 @@ export function Header() {
         </Link>
         <nav className="ml-auto flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
           {NAV.map((n) => (
-            <span key={n} className="cursor-pointer opacity-95 hover:underline">
-              {n}
-            </span>
+            <Link
+              key={n.slug}
+              to="/kategorie/$slug"
+              params={{ slug: n.slug }}
+              className="cursor-pointer opacity-95 hover:underline"
+            >
+              {n.label}
+            </Link>
           ))}
         </nav>
         <div className="flex items-center gap-4">
