@@ -49,9 +49,14 @@ export function Header() {
         </Link>
         <nav className="ml-auto flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
           {NAV.map((n) => (
-            <span key={n} className="cursor-pointer opacity-95 hover:underline">
-              {n}
-            </span>
+            <Link
+              key={n.slug}
+              to="/kategorie/$slug"
+              params={{ slug: n.slug }}
+              className="cursor-pointer opacity-95 hover:underline"
+            >
+              {n.label}
+            </Link>
           ))}
         </nav>
         <div className="flex items-center gap-4">
