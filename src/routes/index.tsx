@@ -23,13 +23,13 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-const CATEGORIES = [
+const CATEGORIES: { label: string; icon: string; slug?: string }[] = [
   { label: "Kopfhörer", icon: "🎧" },
-  { label: "Lautsprecher", icon: "🔊" },
-  { label: "Smartwatches", icon: "⌚" },
-  { label: "Laptops", icon: "💻" },
-  { label: "Smart Home", icon: "🏠" },
-  { label: "Gaming", icon: "🎮" },
+  { label: "Lautsprecher", icon: "🔊", slug: "lautsprecher" },
+  { label: "Smartwatches", icon: "⌚", slug: "smartwatches" },
+  { label: "Laptops", icon: "💻", slug: "laptops" },
+  { label: "Smart Home", icon: "🏠", slug: "smart-home" },
+  { label: "Gaming", icon: "🎮", slug: "gaming" },
 ];
 
 const DEALS = [
