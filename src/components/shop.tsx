@@ -38,7 +38,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function Header() {
+export function Header({ decorative = false }: { decorative?: boolean }) {
   const { count } = useCart();
   return (
     <header className="bg-brand text-brand-foreground">
@@ -48,25 +48,31 @@ export function Header() {
           ElektroPunkt
         </Link>
         <nav className="ml-auto flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
-          {NAV.map((n) => (
-            <Link
-              key={n.slug}
-              to="/kategorie/$slug"
-              params={{ slug: n.slug }}
-              className="cursor-pointer opacity-95 hover:underline"
-            >
-              {n.label}
-            </Link>
-          ))}
+          {NAV.map((n) =>
+            decorative ? (
+              <span key={n.slug} className="opacity-95">
+                {n.label}
+              </span>
+            ) : (
+              <Link
+                key={n.slug}
+                to="/kategorie/$slug"
+                params={{ slug: n.slug }}
+                className="cursor-pointer opacity-95 hover:underline"
+              >
+                {n.label}
+              </Link>
+            ),
+          )}
         </nav>
         <div className="flex items-center gap-4">
-          <span className="relative cursor-pointer text-lg" aria-label="Warenkorb">
+          <span className="relative text-lg" aria-label="Warenkorb">
             🛒
             <span className="absolute -right-2.5 -top-1.5 min-w-[18px] rounded-full bg-brand-foreground px-1 text-center text-[11px] font-bold leading-[18px] text-brand">
               {count}
             </span>
           </span>
-          <span className="cursor-pointer text-lg" aria-label="Konto">
+          <span className="text-lg" aria-label="Konto">
             👤
           </span>
         </div>
