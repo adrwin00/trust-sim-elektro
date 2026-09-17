@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Header, Footer, Stars, useCart } from "@/components/shop";
 import { categoryBySlug } from "@/data/categories";
+import { catImage } from "@/data/catImages";
+
 import { ratingFor, reviewsFor, discountFor } from "@/lib/catalog";
 
 export const Route = createFileRoute("/kategorie/$slug")({
@@ -78,14 +80,22 @@ function CategoryPage() {
                 key={p.name}
                 className="flex flex-col rounded-lg border border-border bg-card p-3 transition-shadow hover:shadow-md"
               >
-                <div className="relative flex aspect-square w-full items-center justify-center rounded-md bg-muted text-5xl">
-                  <span aria-hidden>{p.icon}</span>
+                <div className="relative">
+                  <img
+                    src={catImage(slug, i)}
+                    alt={`${p.name} Produktfoto`}
+                    loading="lazy"
+                    width={768}
+                    height={768}
+                    className="aspect-square w-full rounded-md bg-muted object-cover"
+                  />
                   {disc && (
                     <span className="absolute left-1 top-1 rounded-md bg-brand px-1.5 py-0.5 text-[11px] font-bold text-brand-foreground">
                       -{disc}%
                     </span>
                   )}
                 </div>
+
                 <span className="mt-2 text-sm font-semibold leading-snug">{p.name}</span>
                 <Stars rating={ratingFor(id)} reviews={reviewsFor(id)} />
                 <span className="mt-2 flex items-baseline gap-2">
