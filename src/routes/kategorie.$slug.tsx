@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Header, Footer, Stars, useCart } from "@/components/shop";
 import { categoryBySlug } from "@/data/categories";
+import { catImage } from "@/data/catImages";
+
 import { ratingFor, reviewsFor, discountFor } from "@/lib/catalog";
 
 export const Route = createFileRoute("/kategorie/$slug")({
