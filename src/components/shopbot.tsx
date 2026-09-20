@@ -109,8 +109,7 @@ export function ShopBot({ query = "" }: { query?: string }) {
     scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: "smooth" });
   }, [messages, typing]);
 
-  const send = (e: React.FormEvent) => {
-    e.preventDefault();
+  const send = () => {
     const text = input.trim();
     if (!text || typing || done) return;
     lengths.current.push(text.length);
@@ -182,21 +181,28 @@ export function ShopBot({ query = "" }: { query?: string }) {
       </div>
 
       {!done && (
-        <form onSubmit={send} className="flex gap-2 border-t border-border p-4">
+        <div className="flex gap-2 border-t border-border p-4">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                send();
+              }
+            }}
             placeholder="Ihre Antwort …"
             aria-label="Nachricht an ShopBot"
             className="h-12 min-w-0 flex-1 rounded-lg border border-border bg-background px-4 text-sm outline-none focus:border-brand"
           />
           <button
-            type="submit"
+            type="button"
+            onClick={send}
             className="h-12 rounded-lg bg-brand px-7 text-sm font-semibold text-brand-foreground transition-opacity hover:opacity-90"
           >
             Senden
           </button>
-        </form>
+        </div>
       )}
     </section>
   );
