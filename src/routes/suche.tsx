@@ -91,7 +91,7 @@ function Results() {
 
         {condition === "b" ? (
           <div className="mt-4">
-            <ShopBot />
+            <ShopBot query={q ?? ""} />
           </div>
         ) : (
           <div className="mt-4 rounded-lg border border-brand/30 bg-brand/5 p-4">
