@@ -72,28 +72,31 @@ function Home() {
             <p className="mt-2 text-sm text-muted-foreground">
               Über 120.000 Artikel — sagen Sie uns einfach, wonach Sie suchen.
             </p>
-            <form
+            <div
               className="mx-auto mt-6 flex max-w-2xl gap-2 rounded-xl bg-card p-2 shadow-lg ring-2 ring-brand/40"
-              onSubmit={(e) => {
-                e.preventDefault();
-                go(query);
-              }}
             >
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    go(query);
+                  }
+                }}
                 placeholder="Wonach suchen Sie?"
                 aria-label="Suche"
                 autoFocus
                 className="h-12 min-w-0 flex-1 rounded-lg bg-transparent px-3 text-base outline-none"
               />
               <button
-                type="submit"
+                type="button"
+                onClick={() => go(query)}
                 className="h-12 rounded-lg bg-brand px-7 text-sm font-semibold text-brand-foreground transition-opacity hover:opacity-90"
               >
                 Suchen
               </button>
-            </form>
+            </div>
             <p className="mt-3 text-xs text-muted-foreground">
               Beliebt gerade:{" "}
               {["Kopfhörer", "Saugroboter", "Fernseher", "Kaffeevollautomat"].map((s, i) => (
