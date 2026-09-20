@@ -124,16 +124,16 @@ export function Footer() {
         <div>
           <h3 className="text-sm font-semibold">Newsletter</h3>
           <p className="mt-2 text-xs text-muted-foreground">Angebote jede Woche per E-Mail.</p>
-          <form className="mt-2 flex gap-2" onSubmit={(e) => e.preventDefault()}>
+          <div className="mt-2 flex gap-2">
             <input
               placeholder="E-Mail-Adresse"
               aria-label="E-Mail-Adresse"
               className="h-9 min-w-0 flex-1 rounded-md border border-border bg-background px-2 text-xs outline-none focus:border-brand"
             />
-            <button className="h-9 rounded-md bg-brand px-3 text-xs font-semibold text-brand-foreground">
+            <button type="button" className="h-9 rounded-md bg-brand px-3 text-xs font-semibold text-brand-foreground">
               Anmelden
             </button>
-          </form>
+          </div>
         </div>
       </div>
       <p className="border-t border-border py-4 text-center text-xs text-muted-foreground">
