@@ -92,6 +92,37 @@ function Results() {
         {condition === "b" ? (
           <div className="mt-4">
             <ShopBot query={q ?? ""} />
+            <div className="mt-6 grid gap-3 sm:grid-cols-3">
+              {[
+                { tag: "CLUB", title: "5€ Gutschein sichern", copy: "Kostenlos anmelden und bei jeder Bestellung sparen." },
+                { tag: "-30%", title: "TV-Wochen", copy: "Große Bildschirme, kleine Preise. Nur bis Sonntag." },
+                { tag: "0%", title: "Finanzierung", copy: "24 Monate ohne Zinsen ab 199€ Bestellwert." },
+              ].map((d) => (
+                <div key={d.title} className="rounded-lg border border-border bg-card p-4">
+                  <span className="inline-block rounded-md bg-brand px-2 py-0.5 text-[11px] font-bold text-brand-foreground">
+                    {d.tag}
+                  </span>
+                  <h3 className="mt-2 text-sm font-semibold">{d.title}</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">{d.copy}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 grid gap-3 rounded-lg border border-border bg-card p-4 sm:grid-cols-4">
+              {[
+                { icon: "🚚", t: "Kostenloser Versand", s: "ab 29€ Bestellwert" },
+                { icon: "↩️", t: "30 Tage Rückgabe", s: "kostenlos zurücksenden" },
+                { icon: "🏬", t: "Abholung im Markt", s: "in über 200 Filialen" },
+                { icon: "🔒", t: "Sichere Zahlung", s: "SSL-verschlüsselt" },
+              ].map((s) => (
+                <div key={s.t} className="flex items-center gap-3">
+                  <span className="text-xl">{s.icon}</span>
+                  <div>
+                    <p className="text-xs font-semibold">{s.t}</p>
+                    <p className="text-xs text-muted-foreground">{s.s}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           <div className="mt-4 rounded-lg border border-brand/30 bg-brand/5 p-4">
