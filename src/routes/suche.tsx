@@ -91,7 +91,7 @@ function Results() {
 
         {condition === "b" ? (
           <div className="mt-4">
-            <ShopBot />
+            <ShopBot query={q ?? ""} />
           </div>
         ) : (
           <div className="mt-4 rounded-lg border border-brand/30 bg-brand/5 p-4">
@@ -105,6 +105,7 @@ function Results() {
           </div>
         )}
 
+        {condition === "a" && (
         <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="text-lg font-semibold">Kopfhörer &amp; Kabellose Ohrhörer</h1>
@@ -123,8 +124,9 @@ function Results() {
             </select>
           </label>
         </div>
+        )}
 
-        {loading ? (
+        {condition === "b" ? null : loading ? (
           <p className="py-16 text-center text-sm text-muted-foreground">Ergebnisse werden geladen …</p>
         ) : (
           <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
