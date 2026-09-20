@@ -60,27 +60,30 @@ function Results() {
       <Header />
 
       <main className="mx-auto max-w-6xl px-4 py-5">
-        <form
-          className="flex gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            navigate({ to: "/suche", search: { q: query.trim() || "Kopfhörer", cond: condition } });
-          }}
-        >
+        <div className="flex gap-2">
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                navigate({ to: "/suche", search: { q: query.trim() || "Kopfhörer", cond: condition } });
+              }
+            }}
             placeholder="Wonach suchen Sie?"
             aria-label="Suche"
             className="h-11 min-w-0 flex-1 rounded-lg border border-border bg-card px-3 text-sm outline-none focus:border-brand"
           />
           <button
-            type="submit"
+            type="button"
+            onClick={() =>
+              navigate({ to: "/suche", search: { q: query.trim() || "Kopfhörer", cond: condition } })
+            }
             className="h-11 rounded-lg bg-brand px-6 text-sm font-semibold text-brand-foreground transition-opacity hover:opacity-90"
           >
             Suchen
           </button>
-        </form>
+        </div>
 
         <nav className="mt-4 text-xs text-muted-foreground">
           <Link to="/" className="hover:underline">
