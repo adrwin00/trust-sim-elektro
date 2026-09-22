@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { Header, Footer } from "@/components/shop";
+import { ShopBot } from "@/components/shopbot";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -56,15 +57,20 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-background font-sans text-foreground">
-      <Header />
+      <Header decorative={condition === "b"} />
 
       <div className="bg-foreground py-2 text-center text-xs font-semibold uppercase tracking-wider text-background">
         Rote Wochen · bis zu 40% auf ausgewählte Technik
       </div>
 
       <main>
+        {condition === "b" && (
+          <section className="mx-auto max-w-6xl px-4 py-6">
+            <ShopBot />
+          </section>
+        )}
         {/* Search hero */}
-        <section className="bg-gradient-to-b from-brand/10 to-transparent px-4 py-12">
+        <section className={condition === "b" ? "hidden" : "bg-gradient-to-b from-brand/10 to-transparent px-4 py-12"}>
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
               Technik finden. Sofort.
@@ -203,14 +209,6 @@ function Home() {
         </section>
       </main>
 
-      {condition === "b" && (
-        <button
-          onClick={() => go("Kopfhörer")}
-          className="fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full bg-brand px-5 py-3 text-sm font-semibold text-brand-foreground shadow-xl transition-transform hover:scale-105"
-        >
-          <span className="text-lg">🤖</span> Mit ShopBot chatten
-        </button>
-      )}
 
       <Footer />
     </div>
