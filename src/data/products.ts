@@ -565,6 +565,18 @@ const COLORS: Record<number, string[]> = {
   22: ["schwarz", "grau"],
   23: ["silber", "weiß", "weiss"],
   24: ["schwarz"],
+  25: ["weiß", "weiss"],
+  26: ["grau"],
+  27: ["schwarz", "blau"],
+  28: ["schwarz"],
+  29: ["schwarz"],
+  30: ["schwarz", "grün"],
+  31: ["blau"],
+  32: ["beige", "weiß", "weiss"],
+  33: ["rot", "schwarz"],
+  34: ["weiß", "weiss", "silber"],
+  35: ["schwarz", "silber"],
+  36: ["blau", "weiß", "weiss"],
 };
 
 /**
