@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+ShopBot uses the shared AI Elements conversation and message primitives while its scripted responses and fixed product recommendations stay entirely client-side, so the storefront needs no AI service or persistence.
