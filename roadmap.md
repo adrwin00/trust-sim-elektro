@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Filtrowanie wyników na /suche po wpisanych słowach (filterProducts w products.ts) — funkcja dodana
-- [ ] Podpiąć filterProducts w suche.tsx: lista reaguje na żywo podczas wpisywania (stan `query`)
-- [ ] Kolory: dodać mapę kolorów per produkt i uwzględnić w wyszukiwaniu (schwarz, weiß, blau, rot, grau…)
-- [ ] Zweryfikować w podglądzie (build + szybki test)
+- [x] Filtrowanie wyników na /suche po wpisanych słowach (filterProducts w products.ts)
+- [x] Lista reaguje na żywo podczas wpisywania (stan `query`)
+- [x] Kolory uwzględnione w wyszukiwaniu (mapa COLORS per produkt)
+- [x] Zweryfikowane: tsgo czysto, build OK, /suche → 200
