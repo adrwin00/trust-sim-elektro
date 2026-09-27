@@ -145,7 +145,7 @@ function Results() {
         <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="text-lg font-semibold">Kopfhörer &amp; Kabellose Ohrhörer</h1>
-            <p className="text-xs text-muted-foreground">62 Ergebnisse</p>
+            <p className="text-xs text-muted-foreground">{visible.length} Ergebnisse</p>
           </div>
           <label className="flex items-center gap-2 text-xs text-muted-foreground">
             Sortieren nach:
@@ -166,7 +166,7 @@ function Results() {
           <p className="py-16 text-center text-sm text-muted-foreground">Ergebnisse werden geladen …</p>
         ) : (
           <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-            {PRODUCTS.map((p) => {
+            {visible.map((p) => {
               const disc = discountFor(p.id);
               return (
                 <div
