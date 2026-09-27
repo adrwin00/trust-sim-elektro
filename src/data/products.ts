@@ -579,21 +579,30 @@ const COLORS: Record<number, string[]> = {
   36: ["blau", "weiß", "weiss"],
 };
 
+/** Brauchbare Stichwörter einer Suchanfrage (ohne Füllwörter). */
+export function searchWords(query: string): string[] {
+  return query
+    .toLowerCase()
+    .split(/[^a-zäöüß0-9]+/i)
+    .filter((w) => w.length >= 3 && !GENERIC_WORDS.has(w));
+}
+
+/** Anzahl der treffenden Stichwörter für ein Produkt. */
+export function matchScore(p: Product, words: string[]): number {
+  if (!words.length) return 0;
+  const hay =
+    `${p.name} ${p.teaser} ${p.description} ${p.typ} ${(COLORS[p.id] ?? []).join(" ")}`.toLowerCase();
+  return words.filter((w) => hay.includes(w)).length;
+}
+
 /**
  * Leichte, kosmetische Suche: filtert nach Stichworten in Name, Teaser,
  * Beschreibung, Bauform und Farbe. Liefert die volle Liste, wenn die Anfrage
  * keine brauchbaren Stichworte enthält oder nichts passt.
  */
 export function filterProducts(query: string): Product[] {
-  const words = query
-    .toLowerCase()
-    .split(/[^a-zäöüß0-9]+/i)
-    .filter((w) => w.length >= 3 && !GENERIC_WORDS.has(w));
+  const words = searchWords(query);
   if (!words.length) return PRODUCTS;
-  const matches = PRODUCTS.filter((p) => {
-    const hay =
-      `${p.name} ${p.teaser} ${p.description} ${p.typ} ${(COLORS[p.id] ?? []).join(" ")}`.toLowerCase();
-    return words.some((w) => hay.includes(w));
-  });
+  const matches = PRODUCTS.filter((p) => matchScore(p, words) > 0);
   return matches.length ? matches : PRODUCTS;
 }
