@@ -592,7 +592,17 @@ export function matchScore(p: Product, words: string[]): number {
   if (!words.length) return 0;
   const hay =
     `${p.name} ${p.teaser} ${p.description} ${p.typ} ${(COLORS[p.id] ?? []).join(" ")}`.toLowerCase();
-  return words.filter((w) => hay.includes(w)).length;
+  let n = 0;
+  for (const w of words) {
+    if (hay.includes(w)) {
+      n += 1;
+      continue;
+    }
+    // Leichte Grundform-Erkennung: schwarze → schwarz, blaue → blau
+    const stem = w.replace(/(?:en|es|er|e|n|s)$/, "");
+    if (stem.length >= 3 && hay.includes(stem)) n += 1;
+  }
+  return n;
 }
 
 /**
