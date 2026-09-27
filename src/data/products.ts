@@ -342,3 +342,61 @@ export const PRODUCTS: Product[] = [
     gewicht: "29 g",
   },
 ];
+
+/** Wörter, die keine echte Eingrenzung darstellen. */
+const GENERIC_WORDS = new Set([
+  "kopfhörer",
+  "kopfhorer",
+  "kopfhöhrer",
+  "kopfhoerer",
+  "headphones",
+  "headphone",
+  "ohrhörer",
+  "ohrhoerer",
+  "słuchawki",
+  "sluchawki",
+  "earbuds",
+  "in-ears",
+  "over-ears",
+  "on-ears",
+  "bluetooth",
+  "kabellose",
+  "kabellos",
+  "wireless",
+  "audio",
+  "suche",
+  "suchen",
+  "gute",
+  "guter",
+  "gutes",
+  "neue",
+  "neuer",
+  "neues",
+  "für",
+  "fuer",
+  "und",
+  "mit",
+  "die",
+  "der",
+  "das",
+  "ich",
+  "bitte",
+]);
+
+/**
+ * Leichte, kosmetische Suche: filtert nach Stichworten in Name, Teaser,
+ * Beschreibung und Bauform. Liefert die volle Liste, wenn die Anfrage keine
+ * brauchbaren Stichworte enthält oder nichts passt.
+ */
+export function filterProducts(query: string): Product[] {
+  const words = query
+    .toLowerCase()
+    .split(/[^a-zäöüß0-9]+/i)
+    .filter((w) => w.length >= 3 && !GENERIC_WORDS.has(w));
+  if (!words.length) return PRODUCTS;
+  const matches = PRODUCTS.filter((p) => {
+    const hay = `${p.name} ${p.teaser} ${p.description} ${p.typ}`.toLowerCase();
+    return words.some((w) => hay.includes(w));
+  });
+  return matches.length ? matches : PRODUCTS;
+}
