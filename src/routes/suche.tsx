@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { PRODUCTS, filterProducts } from "@/data/products";
+import { PRODUCTS, filterProducts, searchWords, matchScore } from "@/data/products";
 import { Header, Footer, Stars, useCart } from "@/components/shop";
 import { ShopBot } from "@/components/shopbot";
 import { ratingFor, reviewsFor, discountFor } from "@/lib/catalog";
@@ -56,6 +56,15 @@ function Results() {
   }, [q]);
 
   const visible = filterProducts(query);
+  const words = searchWords(query);
+  const scores = visible.map((p) => matchScore(p, words));
+  const maxScore = Math.max(0, ...scores);
+  const recommended = new Set(
+    visible
+      .filter((_, i) => maxScore > 0 && scores[i] === maxScore)
+      .slice(0, 4)
+      .map((p) => p.id),
+  );
 
   return (
     <div className="min-h-screen bg-background font-sans text-foreground">
@@ -129,17 +138,7 @@ function Results() {
               ))}
             </div>
           </div>
-        ) : (
-          <div className="mt-4 rounded-lg border border-brand/30 bg-brand/5 p-4">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-brand">
-              Empfohlen für Sie
-            </span>
-            <p className="mt-1 text-sm">
-              Basierend auf Ihrer Suche empfehlen wir: RunFit Sport Pro — 69€, wasserfest &amp;
-              kabellos, optimal für Lauftraining.
-            </p>
-          </div>
-        )}
+        ) : null}
 
         {condition === "a" && (
         <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
@@ -190,6 +189,11 @@ function Results() {
                       {disc && (
                         <span className="absolute left-1 top-1 rounded-md bg-brand px-1.5 py-0.5 text-[11px] font-bold text-brand-foreground">
                           -{disc}%
+                        </span>
+                      )}
+                      {recommended.has(p.id) && (
+                        <span className="absolute right-1 top-1 rounded-md bg-brand px-1.5 py-0.5 text-[11px] font-bold text-brand-foreground">
+                          Empfohlen für dich
                         </span>
                       )}
                     </div>
