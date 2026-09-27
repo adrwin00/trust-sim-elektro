@@ -342,3 +342,90 @@ export const PRODUCTS: Product[] = [
     gewicht: "29 g",
   },
 ];
+
+/** Wörter, die keine echte Eingrenzung darstellen. */
+const GENERIC_WORDS = new Set([
+  "kopfhörer",
+  "kopfhorer",
+  "kopfhöhrer",
+  "kopfhoerer",
+  "headphones",
+  "headphone",
+  "ohrhörer",
+  "ohrhoerer",
+  "słuchawki",
+  "sluchawki",
+  "earbuds",
+  "in-ears",
+  "over-ears",
+  "on-ears",
+  "bluetooth",
+  "kabellose",
+  "kabellos",
+  "wireless",
+  "audio",
+  "suche",
+  "suchen",
+  "gute",
+  "guter",
+  "gutes",
+  "neue",
+  "neuer",
+  "neues",
+  "für",
+  "fuer",
+  "und",
+  "mit",
+  "die",
+  "der",
+  "das",
+  "ich",
+  "bitte",
+]);
+
+/** Zugeordnete Farben pro Produkt (für die Stichwortsuche). */
+const COLORS: Record<number, string[]> = {
+  1: ["schwarz"],
+  2: ["schwarz", "grau"],
+  3: ["weiß", "weiss"],
+  4: ["schwarz"],
+  5: ["blau"],
+  6: ["schwarz", "silber"],
+  7: ["weiß", "weiss", "rosa"],
+  8: ["schwarz"],
+  9: ["grau", "silber"],
+  10: ["schwarz", "rot"],
+  11: ["weiß", "weiss"],
+  12: ["schwarz", "blau"],
+  13: ["weiß", "weiss"],
+  14: ["schwarz"],
+  15: ["schwarz", "rot"],
+  16: ["grau"],
+  17: ["schwarz"],
+  18: ["blau", "schwarz"],
+  19: ["weiß", "weiss", "beige"],
+  20: ["schwarz"],
+  21: ["rot"],
+  22: ["schwarz", "grau"],
+  23: ["silber", "weiß", "weiss"],
+  24: ["schwarz"],
+};
+
+/**
+ * Leichte, kosmetische Suche: filtert nach Stichworten in Name, Teaser,
+ * Beschreibung, Bauform und Farbe. Liefert die volle Liste, wenn die Anfrage
+ * keine brauchbaren Stichworte enthält oder nichts passt.
+ */
+export function filterProducts(query: string): Product[] {
+  const words = query
+    .toLowerCase()
+    .split(/[^a-zäöüß0-9]+/i)
+    .filter((w) => w.length >= 3 && !GENERIC_WORDS.has(w));
+  if (!words.length) return PRODUCTS;
+  const matches = PRODUCTS.filter((p) => {
+    const hay =
+      `${p.name} ${p.teaser} ${p.description} ${p.typ} ${(COLORS[p.id] ?? []).join(" ")}`.toLowerCase();
+    return words.some((w) => hay.includes(w));
+  });
+  return matches.length ? matches : PRODUCTS;
+}

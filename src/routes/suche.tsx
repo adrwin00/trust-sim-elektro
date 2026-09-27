@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { PRODUCTS } from "@/data/products";
+import { PRODUCTS, filterProducts } from "@/data/products";
 import { Header, Footer, Stars, useCart } from "@/components/shop";
 import { ShopBot } from "@/components/shopbot";
 import { ratingFor, reviewsFor, discountFor } from "@/lib/catalog";
@@ -54,6 +54,8 @@ function Results() {
     const t = setTimeout(() => setLoading(false), 500);
     return () => clearTimeout(t);
   }, [q]);
+
+  const visible = filterProducts(query);
 
   return (
     <div className="min-h-screen bg-background font-sans text-foreground">
@@ -143,7 +145,7 @@ function Results() {
         <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="text-lg font-semibold">Kopfhörer &amp; Kabellose Ohrhörer</h1>
-            <p className="text-xs text-muted-foreground">62 Ergebnisse</p>
+            <p className="text-xs text-muted-foreground">{visible.length} Ergebnisse</p>
           </div>
           <label className="flex items-center gap-2 text-xs text-muted-foreground">
             Sortieren nach:
@@ -164,7 +166,7 @@ function Results() {
           <p className="py-16 text-center text-sm text-muted-foreground">Ergebnisse werden geladen …</p>
         ) : (
           <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-            {PRODUCTS.map((p) => {
+            {visible.map((p) => {
               const disc = discountFor(p.id);
               return (
                 <div
