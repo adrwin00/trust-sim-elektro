@@ -1,6 +1,19 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { ArrowRight } from "lucide-react";
+import { Conversation, ConversationContent, ConversationScrollButton } from "@/components/ai-elements/conversation";
+import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
+import { PromptInput, PromptInputFooter, PromptInputSubmit, PromptInputTextarea } from "@/components/ai-elements/prompt-input";
+import { Button } from "@/components/ui/button";
+import { PRODUCTS } from "@/data/products";
 
-type Msg = { from: "bot" | "user"; text: string };
+type Msg = { from: "bot" | "user"; text: string; products?: boolean };
+
+const RECOMMENDED_IDS = [1, 13, 15, 10];
+const RECOMMENDED = RECOMMENDED_IDS.flatMap((id) => {
+  const product = PRODUCTS.find((item) => item.id === id);
+  return product ? [product] : [];
+});
 
 const ACKS = [
   "Danke, das hilft mir weiter!",
@@ -70,7 +83,6 @@ export function ShopBot({ query = "" }: { query?: string }) {
   const covered = useRef<Set<string>>(new Set());
   const pending = useRef<Topic | null>(null);
   const lengths = useRef<number[]>([]);
-  const scroller = useRef<HTMLDivElement>(null);
 
   // Was bereits in der Suchanfrage steckt, gilt als beantwortet.
   const greet = () => {
@@ -105,12 +117,8 @@ export function ShopBot({ query = "" }: { query?: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: "smooth" });
-  }, [messages, typing]);
-
-  const send = () => {
-    const text = input.trim();
+  const send = (value: string) => {
+    const text = value.trim();
     if (!text || typing || done) return;
     lengths.current.push(text.length);
     setMessages((m) => [...m, { from: "user", text }]);
@@ -140,7 +148,7 @@ export function ShopBot({ query = "" }: { query?: string }) {
       if (next) {
         add.push({ from: "bot", text: next.question });
       } else {
-        add.push({ from: "bot", text: FINAL });
+        add.push({ from: "bot", text: FINAL, products: true });
         setDone(true);
       }
       setMessages((m) => [...m, ...add]);
@@ -149,7 +157,7 @@ export function ShopBot({ query = "" }: { query?: string }) {
   };
 
   return (
-    <section className="flex min-h-[70vh] flex-col overflow-hidden rounded-xl border-2 border-brand bg-card shadow-lg md:min-h-[78vh]">
+    <section className="flex h-[72vh] min-h-[550px] flex-col overflow-hidden rounded-lg border-2 border-brand bg-card shadow-lg md:h-[78vh]">
       <div className="flex items-center gap-3 bg-brand px-5 py-4 text-brand-foreground">
         <span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-foreground/15 text-2xl">
           🤖
@@ -163,45 +171,57 @@ export function ShopBot({ query = "" }: { query?: string }) {
         </span>
       </div>
 
-      <div ref={scroller} className="flex-1 space-y-3 overflow-y-auto px-5 py-5">
-        {messages.map((m, i) => (
-          <div key={i} className={m.from === "user" ? "flex justify-end" : "flex justify-start"}>
-            <p
-              className={
-                m.from === "user"
-                  ? "max-w-[75%] rounded-2xl rounded-br-sm bg-brand px-4 py-2.5 text-sm text-brand-foreground"
-                  : "max-w-[75%] rounded-2xl rounded-bl-sm bg-secondary px-4 py-2.5 text-sm text-foreground"
-              }
-            >
-              {m.text}
-            </p>
-          </div>
-        ))}
-        {typing && <p className="text-xs italic text-muted-foreground">ShopBot schreibt …</p>}
-      </div>
+      <Conversation className="min-h-0">
+        <ConversationContent className="gap-3 px-5 py-5">
+          {messages.map((m, i) => (
+            <Message key={i} from={m.from === "user" ? "user" : "assistant"} className={m.products ? "max-w-full" : "max-w-[85%]"}>
+              <MessageContent className={m.from === "user" ? "bg-brand text-brand-foreground dark:bg-brand dark:text-brand-foreground" : "bg-transparent text-foreground"}>
+                <MessageResponse>{m.text}</MessageResponse>
+                {m.products && (
+                  <div className="mt-4 w-full">
+                    <p className="mb-3 text-sm font-semibold">Passende Kopfhörer</p>
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                      {RECOMMENDED.map((product, index) => (
+                        <div key={product.id} className="flex min-w-0 flex-col rounded-md border border-border bg-card p-3">
+                          <Link to="/produkt/$id" params={{ id: String(product.id) }} className="group/product flex flex-1 flex-col">
+                            <img src={product.image} alt={`${product.name} Produktfoto`} className="aspect-square w-full rounded-sm object-cover" loading="lazy" />
+                            <span className="mt-2 text-xs font-semibold text-brand">{index === 0 ? "Unsere Empfehlung" : "Ähnliches Modell"}</span>
+                            <span className="mt-1 text-sm font-semibold group-hover/product:underline">{product.name}</span>
+                            <span className="mt-1 text-sm font-bold text-brand">{product.price}€</span>
+                          </Link>
+                          <Button asChild variant="outline" size="sm" className="mt-3 w-full text-brand">
+                            <Link to="/produkt/$id" params={{ id: String(product.id) }}>
+                              Zum Produkt <ArrowRight aria-hidden="true" />
+                            </Link>
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </MessageContent>
+            </Message>
+          ))}
+          {typing && <p className="text-xs italic text-muted-foreground" role="status">ShopBot schreibt …</p>}
+        </ConversationContent>
+        <ConversationScrollButton aria-label="Zu den neuesten Nachrichten" />
+      </Conversation>
 
       {!done && (
-        <div className="flex gap-2 border-t border-border p-4">
-          <input
+        <div className="border-t border-border p-4">
+          <PromptInput onSubmit={({ text }) => send(text)}>
+            <PromptInputTextarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                send();
-              }
-            }}
-            placeholder="Ihre Antwort …"
-            aria-label="Nachricht an ShopBot"
-            className="h-12 min-w-0 flex-1 rounded-lg border border-border bg-background px-4 text-sm outline-none focus:border-brand"
-          />
-          <button
-            type="button"
-            onClick={send}
-            className="h-12 rounded-lg bg-brand px-7 text-sm font-semibold text-brand-foreground transition-opacity hover:opacity-90"
-          >
-            Senden
-          </button>
+              placeholder="Ihre Antwort …"
+              aria-label="Nachricht an ShopBot"
+              className="min-h-12"
+              disabled={typing}
+            />
+            <PromptInputFooter className="justify-end">
+              <PromptInputSubmit aria-label="Senden" title="Senden" status={typing ? "submitted" : "ready"} disabled={typing || !input.trim()} className="bg-brand text-brand-foreground" />
+            </PromptInputFooter>
+          </PromptInput>
         </div>
       )}
     </section>
