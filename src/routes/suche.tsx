@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { PRODUCTS } from "@/data/products";
+import { PRODUCTS, filterProducts } from "@/data/products";
 import { Header, Footer, Stars, useCart } from "@/components/shop";
 import { ShopBot } from "@/components/shopbot";
 import { ratingFor, reviewsFor, discountFor } from "@/lib/catalog";
@@ -54,6 +54,8 @@ function Results() {
     const t = setTimeout(() => setLoading(false), 500);
     return () => clearTimeout(t);
   }, [q]);
+
+  const visible = filterProducts(query);
 
   return (
     <div className="min-h-screen bg-background font-sans text-foreground">
