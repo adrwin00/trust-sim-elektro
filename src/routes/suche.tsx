@@ -4,13 +4,15 @@ import { PRODUCTS, filterProducts, searchWords, matchScore } from "@/data/produc
 import { Header, Footer, Stars, useCart } from "@/components/shop";
 import { ShopBot } from "@/components/shopbot";
 import { ratingFor, reviewsFor, discountFor } from "@/lib/catalog";
+import { reportSearchToParent } from "@/lib/parent-search";
 
-type Search = { q?: string; cond?: "a" | "b" };
+type Search = { q?: string; cond?: "a" | "b"; search?: string | undefined };
 
 export const Route = createFileRoute("/suche")({
   validateSearch: (search: Record<string, unknown>): Search => ({
     q: typeof search['q'] === "string" ? search['q'] : "Kopfhörer",
     cond: search['cond'] === "b" ? "b" : "a",
+    search: typeof search['search'] === "string" ? search['search'] : undefined,
   }),
   head: () => ({
     meta: [
@@ -78,7 +80,12 @@ function Results() {
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
-                navigate({ to: "/suche", search: { q: query.trim() || "Kopfhörer", cond: condition } });
+                reportSearchToParent(query);
+                const term = query.trim();
+                navigate({
+                  to: "/suche",
+                  search: { q: term || "Kopfhörer", cond: condition, ...(term ? { search: term } : {}) },
+                });
               }
             }}
             placeholder="Wonach suchen Sie?"
@@ -87,9 +94,14 @@ function Results() {
           />
           <button
             type="button"
-            onClick={() =>
-              navigate({ to: "/suche", search: { q: query.trim() || "Kopfhörer", cond: condition } })
-            }
+            onClick={() => {
+              reportSearchToParent(query);
+              const term = query.trim();
+              navigate({
+                to: "/suche",
+                search: { q: term || "Kopfhörer", cond: condition, ...(term ? { search: term } : {}) },
+              });
+            }}
             className="h-11 rounded-lg bg-brand px-6 text-sm font-semibold text-brand-foreground transition-opacity hover:opacity-90"
           >
             Suchen

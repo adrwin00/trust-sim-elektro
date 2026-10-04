@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate, useRouterState } from "@tanstack/re
 import { useState } from "react";
 import { Header, Footer } from "@/components/shop";
 import { ShopBot } from "@/components/shopbot";
+import { reportSearchToParent } from "@/lib/parent-search";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -52,8 +53,10 @@ function Home() {
   const condition = rawSearch['cond'] === "b" ? "b" : "a";
   const [query, setQuery] = useState("");
 
-  const go = (q: string) =>
+  const go = (q: string) => {
+    reportSearchToParent(q);
     navigate({ to: "/suche", search: { q: q.trim() || "Kopfhörer", cond: condition } });
+  };
 
   return (
     <div className="min-h-screen bg-background font-sans text-foreground">
