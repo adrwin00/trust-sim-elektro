@@ -15,6 +15,7 @@ import {
 } from "@/components/ai-elements/prompt-input";
 import { Button } from "@/components/ui/button";
 import { PRODUCTS } from "@/data/products";
+import { reportSearchToParent } from "@/lib/parent-search";
 
 type Msg = { from: "bot" | "user"; text: string; products?: boolean };
 
@@ -147,6 +148,7 @@ export function ShopBot({ query = "" }: { query?: string }) {
 
   // Was bereits in der Suchanfrage steckt, gilt als beantwortet.
   const greet = () => {
+    if (query.trim()) reportSearchToParent(query);
     const pre: string[] = [];
     for (const t of TOPICS) {
       const hit = findHit(query, t.keywords);
