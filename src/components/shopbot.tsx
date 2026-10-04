@@ -184,6 +184,7 @@ export function ShopBot({ query = "" }: { query?: string }) {
     const text = value.trim();
     if (!text || typing || done) return;
     lengths.current.push(text.length);
+    reportSearchToParent(text);
     setMessages((m) => [...m, { from: "user", text }]);
     setInput("");
     setTyping(true);
