@@ -157,19 +157,15 @@ export function ShopBot({ query = "" }: { query?: string }) {
         pre.push(t.echo(hit));
       }
     }
-    const next = TOPICS.find((t) => !covered.current.has(t.id)) ?? null;
-    pending.current = next;
+    // Erste Frage bleibt offen – noch kein Thema als "aktuelle Frage" markieren.
+    pending.current = null;
     const first: Msg[] = [
       {
         from: "bot",
-        text: "Hallo! Ich helfe Ihnen gerne dabei, die passenden Kopfhörer zu finden.",
+        text: "Hallo! 👋 Wie kann ich Ihnen heute helfen? Wonach suchen Sie?",
       },
     ];
     if (pre.length) first.push({ from: "bot", text: pre.join(" ") });
-    first.push({
-      from: "bot",
-      text: next ? next.question : "Was ist Ihnen dabei am wichtigsten?",
-    });
     setMessages(first);
     setTyping(false);
   };
