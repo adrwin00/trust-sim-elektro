@@ -57,7 +57,15 @@ function Results() {
     return () => clearTimeout(t);
   }, [q]);
 
-  const visible = filterProducts(query);
+  const filtered = filterProducts(query);
+  const visible =
+    sort === "Preis aufsteigend"
+      ? [...filtered].sort((a, b) => a.price - b.price)
+      : sort === "Preis absteigend"
+        ? [...filtered].sort((a, b) => b.price - a.price)
+        : sort === "Bewertung"
+          ? [...filtered].sort((a, b) => ratingFor(b.id) - ratingFor(a.id))
+          : filtered;
   const words = searchWords(query);
   const scores = visible.map((p) => matchScore(p, words));
   const maxScore = Math.max(0, ...scores);
