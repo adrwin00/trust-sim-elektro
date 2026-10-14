@@ -25,158 +25,79 @@ const RECOMMENDED = RECOMMENDED_IDS.flatMap((id) => {
   return product ? [product] : [];
 });
 
-const ACKS = [
-  "Danke, das hilft mir weiter!",
-  "Verstanden, notiere ich mir das!",
-  "Gut zu wissen, danke!",
-];
-
-const FINAL =
-  "Alles klar, vielen Dank! Basierend auf Ihren Angaben empfehle ich Ihnen: RunFit Sport Pro — 69€ — wasserfest und mit sicherem Halt beim Laufen.";
-
-type Topic = {
-  id: string;
-  question: string;
-  /** Wenn eines dieser Wörter bereits genannt wurde, wird die Frage übersprungen. */
-  keywords: string[];
-  /** Kurze Bestätigung, wenn das Thema schon erwähnt wurde. */
-  echo: (hit: string) => string;
-};
-
-const TOPICS: Topic[] = [
-  {
-    id: "einsatz",
-    question:
-      "Wofür möchten Sie die Kopfhörer hauptsächlich nutzen — Sport, Pendeln oder zu Hause?",
-    keywords: [
-      "sport",
-      "laufen",
-      "joggen",
-      "fitness",
-      "training",
-      "gym",
-      "pendeln",
-      "bahn",
-      "zug",
-      "büro",
-      "buero",
-      "arbeit",
-      "zuhause",
-      "zu hause",
-      "reisen",
-      "gaming",
-    ],
-    echo: (hit) => `Sie nutzen die Kopfhörer also vor allem für „${hit}“ — das notiere ich mir.`,
-  },
-  {
-    id: "bauform",
-    question: "Bevorzugen Sie In-Ear-Stöpsel oder Over-Ear-Kopfhörer?",
-    keywords: [
-      "in-ear",
-      "in ear",
-      "stöpsel",
-      "stoepsel",
-      "over-ear",
-      "over ear",
-      "bügel",
-      "buegel",
-      "on-ear",
-      "ohrhörer",
-      "ohrhoerer",
-    ],
-    echo: (hit) => `Bauform „${hit}“ habe ich mir notiert.`,
-  },
-  {
-    id: "budget",
-    question: "Und wie hoch ist Ihr Budget ungefähr?",
-    keywords: ["€", "eur", "euro", "budget", "günstig", "guenstig", "billig", "preis"],
-    echo: (hit) => `Beim Preis orientiere ich mich an „${hit}“.`,
-  },
-];
-
-function findHit(text: string, keywords: string[]): string | null {
-  const t = text.toLowerCase();
-  for (const k of keywords) if (t.includes(k)) return k;
-  return null;
-}
+const GREETING = "Hallo! 👋 Wie kann ich Ihnen heute helfen? Wonach suchen Sie?";
+const ERROR_TEXT =
+  "Entschuldigung, da ist etwas schiefgelaufen. Bitte versuchen Sie es noch einmal.";
 
 export function ShopBot({ query = "" }: { query?: string }) {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [typing, setTyping] = useState(true);
   const [input, setInput] = useState("");
   const [done, setDone] = useState(false);
-  const covered = useRef<Set<string>>(new Set());
-  const pending = useRef<Topic | null>(null);
   const lengths = useRef<number[]>([]);
-
-  // Was bereits in der Suchanfrage steckt, gilt als beantwortet.
-  const greet = () => {
-    if (query.trim()) reportSearchToParent(query);
-    const pre: string[] = [];
-    for (const t of TOPICS) {
-      const hit = findHit(query, t.keywords);
-      if (hit) {
-        covered.current.add(t.id);
-        pre.push(t.echo(hit));
-      }
-    }
-    // Erste Frage bleibt offen – noch kein Thema als "aktuelle Frage" markieren.
-    pending.current = null;
-    const first: Msg[] = [
-      {
-        from: "bot",
-        text: "Hallo! 👋 Wie kann ich Ihnen heute helfen? Wonach suchen Sie?",
-      },
-    ];
-    if (pre.length) first.push({ from: "bot", text: pre.join(" ") });
-    setMessages(first);
-    setTyping(false);
-  };
+  const busy = useRef(false);
 
   useEffect(() => {
-    const t = setTimeout(greet, 800);
+    const t = setTimeout(() => {
+      if (query.trim()) reportSearchToParent(query);
+      setMessages([{ from: "bot", text: GREETING }]);
+      setTyping(false);
+    }, 800);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const send = (value: string) => {
+  const send = async (value: string) => {
     const text = value.trim();
-    if (!text || typing || done) return;
+    if (!text || typing || done || busy.current) return;
+    busy.current = true;
     lengths.current.push(text.length);
     reportSearchToParent(text);
-    setMessages((m) => [...m, { from: "user", text }]);
+    const history: Msg[] = [...messages, { from: "user", text }];
+    setMessages([...history, { from: "bot", text: "" }]);
     setInput("");
     setTyping(true);
 
-    // aktuelle Frage gilt als beantwortet
-    if (pending.current) covered.current.add(pending.current.id);
-    // alles, was der Nutzer nebenbei erwähnt, ebenfalls abhaken
-    const echoes: string[] = [];
-    for (const t of TOPICS) {
-      if (covered.current.has(t.id)) continue;
-      const hit = findHit(text, t.keywords);
-      if (hit) {
-        covered.current.add(t.id);
-        echoes.push(t.echo(hit));
-      }
-    }
-    const next = TOPICS.find((t) => !covered.current.has(t.id)) ?? null;
-    pending.current = next;
+    const setBotText = (t: string, products = false) =>
+      setMessages((m) => {
+        const copy = [...m];
+        copy[copy.length - 1] = { from: "bot", text: t, ...(products ? { products: true } : {}) };
+        return copy;
+      });
 
-    const delay = 1000 + Math.floor(Math.random() * 800);
-    setTimeout(() => {
-      const ack = ACKS[Math.floor(Math.random() * ACKS.length)]!;
-      const add: Msg[] = [{ from: "bot", text: ack }];
-      if (echoes.length) add.push({ from: "bot", text: echoes.join(" ") });
-      if (next) {
-        add.push({ from: "bot", text: next.question });
-      } else {
-        add.push({ from: "bot", text: FINAL, products: true });
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: history.map((m) => ({
+            role: m.from === "user" ? "user" : "assistant",
+            content: m.text,
+          })),
+        }),
+      });
+      if (!res.ok || !res.body) throw new Error(String(res.status));
+      const final = res.headers.get("X-ShopBot-Final") === "1";
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let acc = "";
+      for (;;) {
+        const { done: end, value: chunk } = await reader.read();
+        if (end) break;
+        acc += decoder.decode(chunk, { stream: true });
+        setBotText(acc);
+      }
+      if (!acc.trim()) throw new Error("empty");
+      if (final) {
+        setBotText(acc, true);
         setDone(true);
       }
-      setMessages((m) => [...m, ...add]);
+    } catch {
+      setBotText(ERROR_TEXT);
+    } finally {
+      busy.current = false;
       setTyping(false);
-    }, delay);
+    }
   };
 
   return (
