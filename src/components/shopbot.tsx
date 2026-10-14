@@ -392,8 +392,9 @@ export function ShopBot({ query = "" }: { query?: string }) {
     const t = setTimeout(() => {
       if (query.trim()) {
         reportSearchToParent(query);
-        const q = query.toLowerCase();
+        const q = norm(query);
         for (const t of TOPICS) if (t.match(q)) covered.current.add(t.key);
+        for (const e of EXTRAS) if (has(q, e.words)) seenExtras.current.add(e.label);
       }
       setMessages([{ from: "bot", text: GREETING }]);
       setTyping(false);
