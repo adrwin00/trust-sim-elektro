@@ -87,43 +87,6 @@ const TOPICS: Topic[] = [
     echo: (hit) => `Bauform „${hit}“ habe ich mir notiert.`,
   },
   {
-    id: "farbe",
-    question: "Haben Sie eine Farbpräferenz?",
-    keywords: [
-      "schwarz",
-      "weiß",
-      "weiss",
-      "grau",
-      "blau",
-      "rot",
-      "grün",
-      "gruen",
-      "silber",
-      "beige",
-      "rosa",
-      "pink",
-      "farbe",
-    ],
-    echo: (hit) => `Farbe „${hit}“ — verstanden.`,
-  },
-  {
-    id: "features",
-    question: "Sind Ihnen Noise Cancelling oder eine lange Akkulaufzeit wichtig?",
-    keywords: [
-      "noise",
-      "anc",
-      "geräuschunterdrückung",
-      "akku",
-      "laufzeit",
-      "batterie",
-      "wasserfest",
-      "spritzwasser",
-      "bluetooth",
-      "kabellos",
-    ],
-    echo: (hit) => `„${hit}“ ist Ihnen wichtig — gut zu wissen.`,
-  },
-  {
     id: "budget",
     question: "Und wie hoch ist Ihr Budget ungefähr?",
     keywords: ["€", "eur", "euro", "budget", "günstig", "guenstig", "billig", "preis"],
@@ -217,7 +180,7 @@ export function ShopBot({ query = "" }: { query?: string }) {
   };
 
   return (
-    <section className="flex h-[72vh] min-h-[550px] flex-col overflow-hidden rounded-lg border-2 border-brand bg-card shadow-lg md:h-[78vh]">
+    <section className="mx-auto flex h-[620px] max-h-[85vh] w-full max-w-[620px] flex-col overflow-hidden rounded-lg border-2 border-brand bg-card shadow-lg">
       <div className="flex items-center gap-3 bg-brand px-5 py-4 text-brand-foreground">
         <span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-foreground/15 text-2xl">
           🤖
