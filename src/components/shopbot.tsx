@@ -335,7 +335,15 @@ const EXTRAS: { label: string; words: string[] }[] = [
   },
   {
     label: "schonend für die Ohren",
-    words: ["ohren", "ohr", "gehoer*", "lautstaerke*", "sensibel*"],
+    words: [
+      "gehoer*",
+      "lautstaerke*",
+      "sensibel*",
+      "empfindlich*",
+      "ohrenschmerzen",
+      "tinnitus",
+      "ohren belast*",
+    ],
   },
   {
     label: "Farbe notiert",
