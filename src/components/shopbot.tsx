@@ -81,7 +81,11 @@ export function ShopBot({ query = "" }: { query?: string }) {
 
   useEffect(() => {
     const t = setTimeout(() => {
-      if (query.trim()) reportSearchToParent(query);
+      if (query.trim()) {
+        reportSearchToParent(query);
+        const q = query.toLowerCase();
+        for (const t of TOPICS) if (t.match(q)) covered.current.add(t.key);
+      }
       setMessages([{ from: "bot", text: GREETING }]);
       setTyping(false);
     }, 800);
