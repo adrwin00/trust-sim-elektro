@@ -39,13 +39,11 @@ export async function handleShopBotChat(request: Request): Promise<Response> {
     return Response.json({ error: "Ungültige Anfrage." }, { status: 400 });
   }
   const raw = Array.isArray(body.messages) ? body.messages : [];
-  const messages: ChatMsg[] = raw
-    .slice(-12)
-    .flatMap((m: unknown) => {
-      const r = m as { role?: unknown; content?: unknown };
-      if ((r.role !== "user" && r.role !== "assistant") || typeof r.content !== "string") return [];
-      return [{ role: r.role, content: r.content.slice(0, 500) } as ChatMsg];
-    });
+  const messages: ChatMsg[] = raw.slice(-12).flatMap((m: unknown) => {
+    const r = m as { role?: unknown; content?: unknown };
+    if ((r.role !== "user" && r.role !== "assistant") || typeof r.content !== "string") return [];
+    return [{ role: r.role, content: r.content.slice(0, 500) } as ChatMsg];
+  });
   const userTurns = messages.filter((m) => m.role === "user").length;
   if (userTurns === 0 || messages[messages.length - 1]?.role !== "user") {
     return Response.json({ error: "Ungültige Anfrage." }, { status: 400 });
@@ -67,6 +65,9 @@ export async function handleShopBotChat(request: Request): Promise<Response> {
     },
   });
   return result.toTextStreamResponse({
-    headers: { "Cache-Control": "no-cache, no-transform", "X-ShopBot-Final": userTurns >= FINAL_TURN ? "1" : "0" },
+    headers: {
+      "Cache-Control": "no-cache, no-transform",
+      "X-ShopBot-Final": userTurns >= FINAL_TURN ? "1" : "0",
+    },
   });
 }

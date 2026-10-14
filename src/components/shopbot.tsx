@@ -117,68 +117,70 @@ export function ShopBot({ query = "" }: { query?: string }) {
 
       <Conversation className="min-h-0">
         <ConversationContent className="gap-3 px-5 py-5">
-          {messages.map((m, i) => (
-            <Message
-              key={i}
-              from={m.from === "user" ? "user" : "assistant"}
-              className={m.products ? "max-w-full" : "max-w-[85%]"}
-            >
-              <MessageContent
-                className={
-                  m.from === "user"
-                    ? "bg-brand text-brand-foreground dark:bg-brand dark:text-brand-foreground"
-                    : "bg-transparent text-foreground"
-                }
+          {messages.map((m, i) =>
+            m.text === "" ? null : (
+              <Message
+                key={i}
+                from={m.from === "user" ? "user" : "assistant"}
+                className={m.products ? "max-w-full" : "max-w-[85%]"}
               >
-                <MessageResponse>{m.text}</MessageResponse>
-                {m.products && (
-                  <div className="mt-4 w-full">
-                    <p className="mb-3 text-sm font-semibold">Passende Kopfhörer</p>
-                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                      {RECOMMENDED.map((product, index) => (
-                        <div
-                          key={product.id}
-                          className="flex min-w-0 flex-col rounded-md border border-border bg-card p-3"
-                        >
-                          <Link
-                            to="/produkt/$id"
-                            params={{ id: String(product.id) }}
-                            className="group/product flex flex-1 flex-col"
+                <MessageContent
+                  className={
+                    m.from === "user"
+                      ? "bg-brand text-brand-foreground dark:bg-brand dark:text-brand-foreground"
+                      : "bg-transparent text-foreground"
+                  }
+                >
+                  <MessageResponse>{m.text}</MessageResponse>
+                  {m.products && (
+                    <div className="mt-4 w-full">
+                      <p className="mb-3 text-sm font-semibold">Passende Kopfhörer</p>
+                      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                        {RECOMMENDED.map((product, index) => (
+                          <div
+                            key={product.id}
+                            className="flex min-w-0 flex-col rounded-md border border-border bg-card p-3"
                           >
-                            <img
-                              src={product.image}
-                              alt={`${product.name} Produktfoto`}
-                              className="aspect-square w-full rounded-sm object-cover"
-                              loading="lazy"
-                            />
-                            <span className="mt-2 text-xs font-semibold text-brand">
-                              {index === 0 ? "Unsere Empfehlung" : "Ähnliches Modell"}
-                            </span>
-                            <span className="mt-1 text-sm font-semibold group-hover/product:underline">
-                              {product.name}
-                            </span>
-                            <span className="mt-1 text-sm font-bold text-brand">
-                              {product.price}€
-                            </span>
-                          </Link>
-                          <Button
-                            asChild
-                            variant="outline"
-                            size="sm"
-                            className="mt-3 w-full text-brand"
-                          >
-                            <Link to="/produkt/$id" params={{ id: String(product.id) }}>
-                              Zum Produkt <ArrowRight aria-hidden="true" />
+                            <Link
+                              to="/produkt/$id"
+                              params={{ id: String(product.id) }}
+                              className="group/product flex flex-1 flex-col"
+                            >
+                              <img
+                                src={product.image}
+                                alt={`${product.name} Produktfoto`}
+                                className="aspect-square w-full rounded-sm object-cover"
+                                loading="lazy"
+                              />
+                              <span className="mt-2 text-xs font-semibold text-brand">
+                                {index === 0 ? "Unsere Empfehlung" : "Ähnliches Modell"}
+                              </span>
+                              <span className="mt-1 text-sm font-semibold group-hover/product:underline">
+                                {product.name}
+                              </span>
+                              <span className="mt-1 text-sm font-bold text-brand">
+                                {product.price}€
+                              </span>
                             </Link>
-                          </Button>
-                        </div>
-                      ))}
+                            <Button
+                              asChild
+                              variant="outline"
+                              size="sm"
+                              className="mt-3 w-full text-brand"
+                            >
+                              <Link to="/produkt/$id" params={{ id: String(product.id) }}>
+                                Zum Produkt <ArrowRight aria-hidden="true" />
+                              </Link>
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </MessageContent>
-            </Message>
-          ))}
+                  )}
+                </MessageContent>
+              </Message>
+            ),
+          )}
           {typing && (
             <p className="text-xs italic text-muted-foreground" role="status">
               ShopBot schreibt …
