@@ -26,8 +26,50 @@ const RECOMMENDED = RECOMMENDED_IDS.flatMap((id) => {
 });
 
 const GREETING = "Hallo! 👋 Wie kann ich Ihnen heute helfen? Wonach suchen Sie?";
-const ERROR_TEXT =
-  "Entschuldigung, da ist etwas schiefgelaufen. Bitte versuchen Sie es noch einmal.";
+type TopicKey = "need" | "use" | "form" | "budget";
+const has = (s: string, words: string[]) => words.find((w) => s.includes(w));
+const TOPICS: { key: TopicKey; question: string; match: (s: string) => string | null }[] = [
+  {
+    key: "need",
+    question: "Wonach suchen Sie genau?",
+    match: (s) =>
+      has(s, ["kopfhörer", "kopfhoerer", "headphone", "earbuds", "ohrhörer", "headset", "kopfh"])
+        ? "Sie suchen Kopfhörer"
+        : null,
+  },
+  {
+    key: "use",
+    question: "Wofür möchten Sie die Kopfhörer hauptsächlich nutzen – Sport, Pendeln oder zu Hause?",
+    match: (s) => {
+      if (has(s, ["sport", "lauf", "joggen", "training", "gym", "fitness", "run"])) return "für den Sport";
+      if (has(s, ["pendel", "bahn", "zug", "reise", "unterwegs", "bus"])) return "für unterwegs";
+      if (has(s, ["zu hause", "zuhause", "home", "büro", "office", "arbeit"])) return "für zu Hause";
+      return null;
+    },
+  },
+  {
+    key: "form",
+    question: "Bevorzugen Sie In-Ear oder Over-Ear?",
+    match: (s) => {
+      if (has(s, ["in-ear", "in ear", "inear", "earbuds", "ohrstöpsel"])) return "In-Ear";
+      if (has(s, ["over-ear", "over ear", "overear", "on-ear", "bügel"])) return "Over-Ear";
+      return null;
+    },
+  },
+  {
+    key: "budget",
+    question: "Wie hoch ist Ihr Budget ungefähr?",
+    match: (s) => {
+      const m = s.match(/(\d{2,4})\s*(€|euro|eur)?/);
+      if (m) return `Budget bis ca. ${m[1]}€`;
+      if (has(s, ["günstig", "billig", "egal", "preiswert"])) return "Budget notiert";
+      return null;
+    },
+  },
+];
+const ACKS = ["Danke!", "Verstanden.", "Super, danke.", "Alles klar."];
+const FINAL_TEXT =
+  "Basierend auf Ihren Angaben empfehle ich Ihnen die **RunFit Sport Pro — 69€**: wasserfest, sicherer Sitz und lange Akkulaufzeit. Hier sind auch ein paar ähnliche Modelle:";
 
 export function ShopBot({ query = "" }: { query?: string }) {
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -39,7 +81,11 @@ export function ShopBot({ query = "" }: { query?: string }) {
 
   useEffect(() => {
     const t = setTimeout(() => {
-      if (query.trim()) reportSearchToParent(query);
+      if (query.trim()) {
+        reportSearchToParent(query);
+        const q = query.toLowerCase();
+        for (const t of TOPICS) if (t.match(q)) covered.current.add(t.key);
+      }
       setMessages([{ from: "bot", text: GREETING }]);
       setTyping(false);
     }, 800);
@@ -47,58 +93,54 @@ export function ShopBot({ query = "" }: { query?: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const send = async (value: string) => {
+  const covered = useRef<Set<TopicKey>>(new Set());
+
+  const send = (value: string) => {
     const text = value.trim();
     if (!text || typing || done || busy.current) return;
     busy.current = true;
     lengths.current.push(text.length);
     reportSearchToParent(text);
-    const history: Msg[] = [...messages, { from: "user", text }];
-    setMessages([...history, { from: "bot", text: "" }]);
+    setMessages((m) => [...m, { from: "user", text }]);
     setInput("");
     setTyping(true);
 
-    const setBotText = (t: string, products = false) =>
-      setMessages((m) => {
-        const copy = [...m];
-        copy[copy.length - 1] = { from: "bot", text: t, ...(products ? { products: true } : {}) };
-        return copy;
-      });
-
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: history.map((m) => ({
-            role: m.from === "user" ? "user" : "assistant",
-            content: m.text,
-          })),
-        }),
-      });
-      if (!res.ok || !res.body) throw new Error(String(res.status));
-      const final = res.headers.get("X-ShopBot-Final") === "1";
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let acc = "";
-      for (;;) {
-        const { done: end, value: chunk } = await reader.read();
-        if (end) break;
-        acc += decoder.decode(chunk, { stream: true });
-        setBotText(acc);
+    const lower = text.toLowerCase();
+    const echoes: string[] = [];
+    for (const t of TOPICS) {
+      if (covered.current.has(t.key)) continue;
+      const hit = t.match(lower);
+      if (hit) {
+        covered.current.add(t.key);
+        echoes.push(hit);
       }
-      if (!acc.trim()) throw new Error("empty");
-      if (final) {
-        setBotText(acc, true);
-        setDone(true);
-      }
-    } catch {
-      setBotText(ERROR_TEXT);
-    } finally {
-      busy.current = false;
-      setTyping(false);
     }
+    // A reply that matches nothing answers the pending question.
+    const pending = TOPICS.find((t) => !covered.current.has(t.key));
+    if (!echoes.length && pending && pendingAsked.current === pending.key) {
+      covered.current.add(pending.key);
+    }
+    const next = TOPICS.find((t) => !covered.current.has(t.key));
+    const ack = echoes.length
+      ? `Alles klar – ${echoes.join(", ")}. `
+      : ACKS[Math.floor(Math.random() * ACKS.length)] + " ";
+
+    setTimeout(
+      () => {
+        if (next) {
+          pendingAsked.current = next.key;
+          setMessages((m) => [...m, { from: "bot", text: ack + next.question }]);
+        } else {
+          setMessages((m) => [...m, { from: "bot", text: ack + FINAL_TEXT, products: true }]);
+          setDone(true);
+        }
+        busy.current = false;
+        setTyping(false);
+      },
+      1000 + Math.random() * 800,
+    );
   };
+  const pendingAsked = useRef<TopicKey | null>("need");
 
   return (
     <section className="mx-auto flex h-[620px] max-h-[85vh] w-full max-w-[620px] flex-col overflow-hidden rounded-lg border-2 border-brand bg-card shadow-lg">
